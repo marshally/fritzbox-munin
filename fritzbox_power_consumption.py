@@ -12,7 +12,7 @@
   env.fritzbox_ip [ip address of the fritzbox]
   env.fritzbox_username [fritzbox username]
   env.fritzbox_password [fritzbox password]
-  
+
   This plugin supports the following munin configuration parameters:
   #%# family=auto contrib
   #%# capabilities=autoconf
@@ -24,7 +24,7 @@ import sys
 import fritzbox_helper as fh
 
 PAGE = "energy"
-DEVICES = ["system", "cpu", "wifi", "dsl", "ab", "usb"]
+DEVICES = ["system", "cpu", "wifi", "dsl", "ab"]
 
 
 def get_power_consumption():
@@ -38,8 +38,11 @@ def get_power_consumption():
     xhr_data = fh.get_xhr_content(server, session_id, PAGE)
     data = json.loads(xhr_data)
     devices = data["data"]["drain"]
+
     for i, device in enumerate(DEVICES):
-        print("%s.value %s" % (device, devices[i]["actPerc"]))
+        if(i < len(devices)):
+            if ("actPerc" in devices[i]):
+                print("%s.value %s" % (device, devices[i]["actPerc"]))
 
 
 def print_config():
@@ -86,7 +89,7 @@ def print_config():
     if os.environ.get("host_name"):
         print("host_name " + os.environ["host_name"])
 
-
+import traceback
 if __name__ == "__main__":
     if len(sys.argv) == 2 and sys.argv[1] == "config":
         print_config()
@@ -96,5 +99,7 @@ if __name__ == "__main__":
         # Some docs say it'll be called with fetch, some say no arg at all
         try:
             get_power_consumption()
-        except:
+        except Exception as e:
+            traceback.print_exc()
+            print(e)
             sys.exit("Couldn't retrieve fritzbox power consumption")

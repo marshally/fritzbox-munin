@@ -43,8 +43,9 @@ def get_uptime():
     session_id = fh.get_session_id(server, username, password)
     xhr_data = fh.get_xhr_content(server, session_id, PAGE)
     data = json.loads(xhr_data)
+
     for d in data["data"]["drain"]:
-        if "aktiv" in d["statuses"]:
+        if "Active" in d["statuses"]:
             matches = re.finditer(pattern, d["statuses"])
             if matches:
                 hours = 0.0

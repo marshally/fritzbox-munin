@@ -11,7 +11,7 @@
   env.fritzbox_ip [ip address of the fritzbox]
   env.fritzbox_username [fritzbox username]
   env.fritzbox_password [fritzbox password]
-  
+
   This plugin supports the following munin configuration parameters:
   #%# family=auto contrib
   #%# capabilities=autoconf
@@ -24,7 +24,7 @@ import sys
 import fritzbox_helper as fh
 
 locale = os.environ.get("locale", "de")
-patternLoc = {"de": r"(\d+) WLAN", "en": r"(\d+) wireless LAN"}
+patternLoc = {"de": r"(\d+) WLAN", "en": r"(\d+) wireless"}
 
 PAGE = "energy"
 pattern = re.compile(patternLoc[locale])
@@ -40,7 +40,9 @@ def get_connected_wifi_devices():
     session_id = fh.get_session_id(server, username, password)
     xhr_data = fh.get_xhr_content(server, session_id, PAGE)
     data = json.loads(xhr_data)
+
     m = re.search(pattern, data["data"]["drain"][2]["statuses"][-1])
+
     if m:
         connected_devices = int(m.group(1))
         print("wifi.value %d" % connected_devices)
